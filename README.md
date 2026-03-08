@@ -29,7 +29,7 @@ Production-style Computer Vision Telegram bot that recognizes world landmarks an
 
 ```bash
 # Перейти в папку проекта
-cd project
+cd landmark-telegram-bot
 
 # Создать виртуальное окружение
 python -m venv .venv
