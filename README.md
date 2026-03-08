@@ -55,7 +55,8 @@ transform = transforms.Compose([
     transforms.ToTensor()
 ])
 
-dataset = ImageFolder("data/dataset", transform=transform) 
+dataset = ImageFolder("data/dataset", transform=transform)
+```
 
 ## 4. Baseline Model
 
