@@ -58,8 +58,8 @@ transform = transforms.Compose([
 dataset = ImageFolder("data/dataset", transform=transform)
 ```
 
-## 4. Baseline Model
-
+## 4. Модели
+### 4.1. Baseline Model
 **BaselineCNN (Видоизмененный VGG)**
 
 **Описание модели:**  
@@ -89,13 +89,45 @@ dataset = ImageFolder("data/dataset", transform=transform)
 - Эта baseline модель используется как отправная точка для сравнения с Transfer Learning моделью (MobileNetV2).  
 - Метрики сохранены в `metrics/baseline_metrics.json`.  
 - Модель сохранена в `weights/baseline_model.pth`.  
-- Графики обучения: `metrics/figures/loss_curve.png`, `metrics/artifacts/accuracy_curve.png`.
+- Графики обучения: `metrics/artifacts/Baseline-loss_curve.png`, `metrics/artifacts/Baseline-accuracy_curve.png`.
 
-## 5. Требования и установка
+### 4.2. MobileNetV2 (Transfer Learning)
+**MobileNetV2 (с замороженными слоями и обученным классификатором)**
+
+**Описание модели:**  
+- Использована предобученная на ImageNet модель MobileNetV2.
+- Заморожены все слои извлечения признаков, обучается только классификатор (classifier) для 10 классов. 
+- Используются те же аугментации, что и для baseline модели: горизонтальное отражение, случайная яркость, контраст, поворот и масштабирование.
+- Обучение на GPU (30 эпох) с Adam и lr=1e-4, CrossEntropyLoss.  
+
+**Количество обучаемых параметров:**  ~12800
+
+**Hyperparameters:**  
+- Optimizer: Adam, lr=1e-4  
+- Loss: CrossEntropyLoss  
+- Batch size: 16  
+- Epochs: 30
+
+**Результаты на валидации:**  
+![Training curves](metrics/artifacts/MobilenetV2-loss_curve.png)
+![Training curves](metrics/artifacts/MobilenetV2-accuracy_curve.png)
+- Train Loss: '[2.3,2.2,2.2,2.1,2.1,2.0,1.9,1.9,1.8,1.8,1.8,1.8,1.6,1.6,1.6,1.6,1.5,1.5,1.4,1.4,1.4,1.4,1.3,1.3,1.3,1.3,1.3,1.2,1.2]`  
+- Validation Loss: `[2.2,2.2,2.1,2.1,2.0,1.9,1.9,1.8,1.8,1.81.7,1.7,1.6,1.6,1.6,1.5,1.5,1.5,1.4,1.4,1.4,1.3,1.3,1.3,1.3,1.2,1.2,1.2,1.2,1.1]`
+- Validation Accuracy: `[0.18,0.33,0.46,0.57,0.70,0.67,0.79,0.84,0.84,0.81,0.86,0.83,0.83,0.86,0.87,0.84,0.84,0.85,0.86,0.86,0.86,0.85,0.87,0.87,0.86,0.88,0.87,0.87,0.87,0.89]`  
+- Validation F1-score (macro): `[0.18,0.32,0.44,0.57,0.70,0.66,0.79,0.83,0.84,0.80,0.86,0.83,0.82,0.86,0.87,0.84,0.84,0.85,0.86,0.86,0.86,0.85,0.87,0.87,0.86,0.88,0.87,0.87,0.87,0.89]`  
+
+**Комментарии:**  
+- Модель показывает значительное улучшение качества по сравнению с baseline CNN (accuracy ↑ ~50%, F1 ↑ ~0.5).
+- Метрики сохранены в `metrics/mobilenet_metrics.json`.  
+- Модель сохранена в `weights/mobilenet_model.pth`.  
+- Графики обучения: `metrics/artifacts/MobilenetV2-loss_curve.png`, `metrics/artifacts/MobilenetV2-accuracy_curve.png`.
+
+
+## 6. Требования и установка
 
 - Python `== 3.11`
 
-## 6. Как запустить проект
+## 7. Как запустить проект
 
 ```bash
 # Перейти в папку проекта
