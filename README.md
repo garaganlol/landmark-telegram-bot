@@ -1,30 +1,67 @@
 # landmark-telegram-bot
-Production-style Computer Vision Telegram bot that recognizes world landmarks and returns structured descriptions. Built with PyTorch, EfficientNet and aiogram.
+# 1. Landmark Recognition Bot
+CV сервис, распознающий мировые достопримечательности на изображениях.
 
-## 1. Паспорт проекта
+Система включает в себя:
+- Модель классификации изображений: PyTorch
+- API для вывода данных: FastAPI
+- Интерфейс Telegram-бота: aiogram
 
-- **Название проекта:** `Landmark Classification Bot`
+Пользователи могут отправить фотографию боту и получить:
+- предсказанную достопримечательность
+- вероятность предсказания
+- краткое описание
+
+![Demo](assets/bot_demo.gif)
+
 - **Автор:** `Ветошников Глеб`
 - **Контакт:** `gtvpresents@gmail.com`
 ---
+## 2. Архитектура проекта
 
-## 2. Структура проекта
+Пользователь
+  ↓
+Telegram Bot (aiogram)
+  ↓ HTTP
+FastAPI API
+  ↓
+PyTorch модель
+  ↓
+Предсказание
+
+## 3. Структура проекта
 
 Проект организован в следующей структуре:
 
-- `requirements.txt` – зависимости проекта (библиотеки Python, необходимые для запуска).
-- `model/` – модели
-- `bot/` – Telegram bot: принимает фото, вызывает инференс и возвращает результат
-- `data/` – Датасет с изображениями, json файлы с названием и описанием достопримечательностей
-- `weights/` – Сохраненные веса модели
-- `tests/` – тесты (юнит-тесты, простые проверки).
-- `notebooks/` – экспериментальные ноутбуки:
-  - EDA, предобработка, обучение модели
-- `utils/` – вспомогательные функции для работы с изображениями
+landmark-telegram-bot
+│
+├── src
+│   ├── api
+│   │   └── main.py - fastapi
+│   │
+│   ├── bot
+│   │   ├── bot_main.py - телеграм бот
+│   │   ├── handlers.py
+│   │   └── keyboards.py
+│   │   └── config.py - config бота
+│   │
+│   ├── inference
+│   │   ├── predict.py - предсказание моделью
+│   │   └── preprocess.py - предобработка изображения
+│   │
+│   └── model
+│       ├── model.py - модели
+│       └── load_model.py - загрузка модели
+│
+├── data - датасет с изображениями, json файлы с достопримечательностями
+├── weights - веса моделей
+├── notebooks - ipynb ноутбуки с eda и обучением моделей
+├── metrics - метрики моделей и графики обучения
+└── requirements.txt - зависимости проекта
 ---
 
-## 3. Данные
-Небольшой самописный датасет для классификации достопримечательностей, используемый в проекте landmark-telegram-bot. Содержит 30 классов с 50 изображениями на класс.
+## 4. Данные
+Небольшой самописный датасет для классификации достопримечательностей, используемый в проекте landmark-telegram-bot. Содержит 10 классов с 50 изображениями на класс.
 ### Структура
 data/dataset/
 
@@ -34,7 +71,7 @@ data/dataset/
 
 ├─ big_ben/
 
-└─ ... (всего 30 папок)
+└─ ... 
 
 Каждая папка — один класс (название достопримечательности). Изображения имеют формат JPG и размер ~224x224 px.
 
@@ -58,8 +95,8 @@ transform = transforms.Compose([
 dataset = ImageFolder("data/dataset", transform=transform)
 ```
 
-## 4. Модели
-### 4.1. Baseline Model
+## 5. Модели
+### 5.1. Baseline Model
 **BaselineCNN (Видоизмененный VGG)**
 
 **Описание модели:**  
@@ -91,7 +128,7 @@ dataset = ImageFolder("data/dataset", transform=transform)
 - Модель сохранена в `weights/baseline_model.pth`.  
 - Графики обучения: `metrics/artifacts/Baseline-loss_curve.png`, `metrics/artifacts/Baseline-accuracy_curve.png`.
 
-### 4.2. MobileNetV2 (Transfer Learning)
+### 5.2. MobileNetV2 (Transfer Learning)
 **MobileNetV2 (с замороженными слоями и обученным классификатором)**
 
 **Описание модели:**  
@@ -122,12 +159,46 @@ dataset = ImageFolder("data/dataset", transform=transform)
 - Модель сохранена в `weights/mobilenet_model.pth`.  
 - Графики обучения: `metrics/artifacts/MobilenetV2-loss_curve.png`, `metrics/artifacts/MobilenetV2-accuracy_curve.png`.
 
+## 6. FastAPI 
+Post /predict
+### Запрос
+multipart/form-data
+file=image.jpg
+### Ответ
+{
+ "landmark": "Eiffel Tower",
+ "probability": 0.92,
+ "description": "описание"
+}
+## 7. Telegram bot
 
-## 6. Требования и установка
+### Описание интерфейса
+
+Пользователь → присылает фото
+Бот → Возвращает предсказание
+### Пример ответа
+📍 **Результат распознавания**
+
+🏛 Место: Биг-Бен
+📊 Вероятность: 56.59%
+
+📝 Описание:
+Биг-Бен — обиходное туристическое название часовой башни Вестминстерского дворца в Лондоне. Башня возведена по проекту английского архитектора Огастеса Пьюджина в неоготическом стиле в 1859 году.
+
+## 8. Демо
+### Telegram Bot демо
+![Demo](assets/bot_demo.gif)
+### FastAPI docs
+![Demo](assets/FastAPI_docs.png)
+
+
+## 9. Требования и установка
+### Требования
 
 - Python `== 3.11`
 
-## 7. Как запустить проект
+
+### Установка
 
 ```bash
 # Перейти в папку проекта
@@ -146,4 +217,28 @@ source .venv/bin/activate
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
+В src/bot/config.py заменить BOT_TOKEN на токен своего бота
+
+## 10. Запуск проекта
+Запустить API
+```bash
+uvicorn src.api.main:app --reload
+```
+Запустить бота
+```bash
+python -m src.bot.bot_main
+```
+## 11. Технический стек
+- Python
+- PyTorch
+- FastAPI
+- Aiogram
+- OpenCV
+- Torchvision
+
+## 12. Автор
+Ветошников Глеб
+Email: gtvpresents@gmail.com
+
+
 ---
